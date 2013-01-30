@@ -1,0 +1,668 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="ArcB_files/81Help.css"><script type="text/javascript" language="JavaScript" src="C:/Program%20Files%20%28x86%29/ArcGIS/help/gp/81Help.js"></script><script type="text/javascript" language="JavaScript" src="ms-its:Geoprocessing.chm::/81Help.js"></script><script language="JavaScript1.2"></script><title></title>
+</head>
+<body>
+<table style="margin-top: -1em; margin-bottom: 0pt; padding: 0pt; margin-left: -1em;">
+<tbody><tr>
+<td style="background: none repeat scroll 0% 0% white;"><img alt="ArcToolbox banner" src="ArcB_files/AHBanner_Arctoolbox.gif" height="70" width="875"></td>
+</tr>
+</tbody></table>
+<h1>ArcB</h1>
+<p></p>
+<p>ArcB is a GIS tool for modelling annual diffuse infiltration (RP) 
+from precipitation (P) on a plot scale that uses ArcObjects as the 
+programming language to incorporate equations and boundary conditions 
+for the water balance consistency. Because detailed weather, soil, and 
+vegetation data are often missing, ArcB uses well-known non-global 
+models such as Hargreaves for daily potential evapotranspiration and 
+Budyko for annual actual evapotranspiration (EA), as well as the SCS 
+Curve Number (CN) procedure for 24-h plot runoff (RO). Annual RP is 
+quantified as the difference in annual P, EA, and RO.</p><br><p>
+</p><h2> Usage Tips</h2>
+<p></p>
+<div>
+<p>The site results are saved as a table and as a point feature class in ArcB_curr geodatabase. Operation of ArcB includes 6 steps:</p>
+<ul>
+<li>(1) Daily EP calculation using Hargreaves’ model (1994), by using input data for Td, Id, and Ad and other parameters </li>
+</ul>
+<ul>
+<li>(2) Annual EA calculation using Budyko’s model (1974), by using 
+annual EP data &#8213; as the sum of the above daily EP &#8213; and the input data 
+for annual P </li>
+</ul>
+<ul>
+<li>(3) Correction of the above annual EA by using the experimental CEA value</li>
+</ul>
+<ul>
+<li>(4) Daily RO calculation for each rainy day by means of the CN procedure using the input data for 24-h P and CNII values</li>
+</ul>
+<ul>
+<li>(5) Annual RO as the sum of daily RO</li>
+</ul>
+<ul>
+<li>(6) Annual RP as the difference in annual P, EA, and RO. </li>
+</ul>
+<p>ArcB includes 4 hydrological boundary conditions programmed to 
+respect the numerical and conceptual consistency of the soil water 
+budget (see ArcB_doc)</p><br></div>
+<p>
+</p><h2> Command line syntax</h2>
+<p></p>
+<div>ArcB &lt;P&gt; &lt;P_d&gt; &lt;Current_Workspace&gt; 
+&lt;Scratch_Workspace&gt; &lt;CNII&gt; &lt;CEA&gt; &lt;Y_Field&gt; 
+&lt;X_Field&gt; &lt;Spatial_Reference&gt; <br><br><b>Parameters</b><br><table border="0" cellpadding="5" width="100%">
+<tbody>
+<tr>
+<th width="40%"><b>Expression</b></th>
+<th width="60%"><b>Explanation</b></th>
+</tr>
+<tr>
+<td class="info">&lt;P&gt;</td>
+<td class="info" align="left">
+<p>Input table with yearly P values (mm) including the following fields: [OBJECTID], [ST], [X_UTM], [Y_UTM] and [P_an].</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;P_d&gt;</td>
+<td class="info" align="left">
+<p>Input table with daily P values (mm) including the following fields: 
+[OBJECTID], [ST], [Day_], [P], [P5w], [P5d], [Td], [Id] and [Ad].</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;Current_Workspace&gt;</td>
+<td class="info" align="left">
+<p>Folder where the final results of the model will be stored.</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;Scratch_Workspace&gt;</td>
+<td class="info" align="left">
+<p>Folder where intermediate results of the model will be stored.</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;CNII&gt;</td>
+<td class="info" align="left">
+<p>Curve Number (McCuen,1982; USDA-SCS, 1986).</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;CEA&gt;</td>
+<td class="info" align="left">
+<p>Dimensionless value for EA correction</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;Y_Field&gt;</td>
+<td class="info" align="left">
+<p>Latitude. UTM Coordinates</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;X_Field&gt;</td>
+<td class="info" align="left">
+<p>Longitude. UTM Coordinates</p>
+</td>
+</tr>
+<tr>
+<td class="info">&lt;Spatial_Reference&gt;</td>
+<td class="info" align="left">
+<p>The spatial reference of the coordinates in the X and Y fields defined above. This will be the output layer's coordinate system.</p>
+</td>
+</tr>
+</tbody>
+</table><b>Command Line Example</b><br><br><pre></pre>
+</div>
+<p>
+</p><h2> Scripting syntax</h2>
+<p></p>
+<div>ArcB (P, P_d, Current_Workspace, Scratch_Workspace, CNII, CEA, Y_Field, X_Field, Spatial_Reference) <br><br><b>Parameters</b><br><table border="0" cellpadding="5" width="100%">
+<tbody>
+<tr>
+<th width="40%"><b>Expression</b></th>
+<th width="60%"><b>Explanation</b></th>
+</tr>
+<tr>
+<td class="info">P (Required) </td>
+<td class="info" align="left">
+<p>Input table with yearly P values (mm) including the following fields: [OBJECTID], [ST], [X_UTM], [Y_UTM] and [P_an].</p>
+</td>
+</tr>
+<tr>
+<td class="info">P_d (Required) </td>
+<td class="info" align="left">
+<p>Input table with daily P values (mm) including the following fields: 
+[OBJECTID], [ST], [Day_], [P], [P5w], [P5d], [Td], [Id] and [Ad].</p>
+</td>
+</tr>
+<tr>
+<td class="info">Current Workspace (Required) </td>
+<td class="info" align="left">
+<p>Folder where the final results of the model will be stored.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Scratch Workspace (Required) </td>
+<td class="info" align="left">
+<p>Folder where intermediate results of the model will be stored.</p>
+</td>
+</tr>
+<tr>
+<td class="info">CNII (Required) </td>
+<td class="info" align="left">
+<p>Curve Number (McCuen,1982; USDA-SCS, 1986).</p>
+</td>
+</tr>
+<tr>
+<td class="info">CEA (Required) </td>
+<td class="info" align="left">
+<p>Dimensionless value for EA correction</p>
+</td>
+</tr>
+<tr>
+<td class="info">Y Field (Required) </td>
+<td class="info" align="left">
+<p>Latitude. UTM Coordinates</p>
+</td>
+</tr>
+<tr>
+<td class="info">X Field (Required) </td>
+<td class="info" align="left">
+<p>Longitude. UTM Coordinates</p>
+</td>
+</tr>
+<tr>
+<td class="info">Spatial Reference (Required) </td>
+<td class="info" align="left">
+<p>The spatial reference of the coordinates in the X and Y fields defined above. This will be the output layer's coordinate system.</p>
+</td>
+</tr>
+</tbody>
+</table><b>Script Example</b><br><br><pre></pre>
+</div>
+<p>
+</p><h2> Model </h2>
+<p></p>
+<div><b>Elements</b><br><table border="0" cellpadding="5" width="100%">
+<tbody>
+<tr>
+<th width="40%"><b>Name</b></th>
+<th width="60%"><b>Explanation</b></th>
+</tr>
+<tr>
+<td class="info">Table to Table ROd</td>
+<td class="info" align="left">
+<p>Create new table for daily RO values</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field CNII</td>
+<td class="info" align="left">
+<p>Curve Number [CNII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNII</td>
+<td class="info" align="left">
+<p>Calculate Field [CNII] using the Input Parameter CNII</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field CNI</td>
+<td class="info" align="left">
+<p>Curve Number [CNI]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNI</td>
+<td class="info" align="left">
+<p>[CNI] = (4.2 * [CNII]) / (10 - 0.058 * [CNII])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field CNIII</td>
+<td class="info" align="left">
+<p>Curve Number [CNIII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNIII</td>
+<td class="info" align="left">
+<p>[CNIII] = (23 * [CNII]) / (10 + 0.13 * [CNII])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field CNOK</td>
+<td class="info" align="left">
+<p>Curve Number used to perform calculations.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field S</td>
+<td class="info" align="left">
+<p>Potential maximum retention of the soil after runoff begins (mm)</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field RO</td>
+<td class="info" align="left">
+<p>Daily runoff (mm)</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make XY Event Layer</td>
+<td class="info" align="left">
+<p>Makes a point layer based on x and y coordinates from a source table used to apply boundary conditions to daily P values.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make Feature Layer</td>
+<td class="info" align="left">
+<p>The Make Feature Layer tool is used to create a feature layer from an
+ input feature class or layer file. The layer that is created by the 
+tool is temporary and will not persist after the session ends unless the
+ document is saved. This layer is used to apply the boundary conditions.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.1w</td>
+<td class="info" align="left">
+<p>BC_1.1w: [P5w] &lt; 12.5</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.1w</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNI]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.1w</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.2w</td>
+<td class="info" align="left">
+<p>BC_1.2w: [P5w] &gt;= 28</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.2w</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNIII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.2w</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.3w</td>
+<td class="info" align="left">
+<p>BC_1.3w: [P5w] &gt; 12.5 AND [P5w] &lt; 28</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.3w</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.3w</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.1w</td>
+<td class="info" align="left">
+<p>BC_2.1 w: [P] &lt; (0.2 * [S])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.1w</td>
+<td class="info" align="left">
+<p>[RO] = 0</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.2w</td>
+<td class="info" align="left">
+<p>BC_2.2 w: (0.2 * [S]) &lt; [P] AND (4.2 * [S] )&gt; [P]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.2w</td>
+<td class="info" align="left">
+<p>[RO] = ([P] - (0.2 * [S])) * ([P] - (0.2 * [S])) / ([P] + (0.8 * [S]))</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.3w</td>
+<td class="info" align="left">
+<p>BC_2.3 w: [P] &gt; (4.2 * [S])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.3w</td>
+<td class="info" align="left">
+<p>[RO] = [P] - [S]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.1d</td>
+<td class="info" align="left">
+<p>BC_1.1d: [P5d] &lt; 35.5</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.1d</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNI]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.1d</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.2d</td>
+<td class="info" align="left">
+<p>BC_1.2d: [P5d] &gt;= 53</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.2d</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNIII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.2d</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_1.3d</td>
+<td class="info" align="left">
+<p>BC_1.3d: [P5d] &gt; 35.5 AND [P5d] &lt; 53</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CNOK BC_1.3d</td>
+<td class="info" align="left">
+<p>[CNOK] = [CNII]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field S BC_1.3d</td>
+<td class="info" align="left">
+<p>[S] = (25400 / [CNOK])-254</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.1d</td>
+<td class="info" align="left">
+<p>BC_2.1 d: [P] &lt; (0.2 * [S])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.1d</td>
+<td class="info" align="left">
+<p>[RO] = 0</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.2d</td>
+<td class="info" align="left">
+<p>BC_2.2 d: (0.2 * [S]) &lt; [P] AND (4.2 * [S] )&gt; [P]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.2d</td>
+<td class="info" align="left">
+<p>[RO] = ([P] - (0.2 * [S])) * ([P] - (0.2 * [S])) / ([P] + (0.8 * [S]))</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_2.3d</td>
+<td class="info" align="left">
+<p>BC_2.3 d: [P] &gt; (4.2 * [S])</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO BC_2.3d</td>
+<td class="info" align="left">
+<p>[RO] = [P] - [S]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Table to Table P_an</td>
+<td class="info" align="left">
+<p>Create new table for yearly EP and EA values</p>
+</td>
+</tr>
+<tr>
+<td class="info">Table to Table yearly RO and RP</td>
+<td class="info" align="left">
+<p>Table for yearly RO and RP values.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Table to Table P_d</td>
+<td class="info" align="left">
+<p>Create new table for daily EP values</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field EPd</td>
+<td class="info" align="left">
+<p>Daily EP</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field EPd</td>
+<td class="info" align="left">
+<p>[EPd] = 0.0023 * [Id] ^ 0.5 * [Ad] * ([Td] + 17.78) (Hargreaves's Model)</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make XY Event Layer EPd</td>
+<td class="info" align="left">
+<p>Makes a point layer based on x and y coordinates from a source table</p>
+</td>
+</tr>
+<tr>
+<td class="info">Summary Statistics EPd</td>
+<td class="info" align="left">
+<p>Sum of daily [EPd] values</p>
+</td>
+</tr>
+<tr>
+<td class="info">Join Field SUM EPd</td>
+<td class="info" align="left">
+<p>Join [EP_an_SUM] to P table. [OBJECTID] is the common attribute field</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field EP_an</td>
+<td class="info" align="left">
+<p>Yearly EP</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field EP_an</td>
+<td class="info" align="left">
+<p>[EP_an] = [SUM_EPd]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field CEA</td>
+<td class="info" align="left">
+<p>Dimensionless value for EA correction</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field CEA</td>
+<td class="info" align="left">
+<p>Calculate Field [CEA] using the Input Parameter CEA</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field EA_an</td>
+<td class="info" align="left">
+<p>Yearly EA</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field EA_an</td>
+<td class="info" align="left">
+<p>[EA_an] = (([EP_an] * [P_an] * ((Exp ([P_an] / [EP_an]) - Exp (- 
+[P_an] / [EP_an])) / (Exp ([P_an] / [EP_an]) + Exp (- [P_an] / 
+[EP_an]))) * (1 - ((Exp ([EP_an] / [P_an]) + Exp (- [EP_an] / [P_an])) /
+ 2) + ((Exp ([EP_an] / [P_an]) - Exp (- [EP_an] / [P_an])) / 2)))^0.5) *
+ [CEA] (Budyko's Model)</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make XY Event Layer RO_an</td>
+<td class="info" align="left">
+<p>Makes a point layer based on x and y coordinates from a source table. </p>
+</td>
+</tr>
+<tr>
+<td class="info">Summary Statistics RO_an</td>
+<td class="info" align="left">
+<p>Sum of daily [RO] values</p>
+</td>
+</tr>
+<tr>
+<td class="info">Join Field RO_an</td>
+<td class="info" align="left">
+<p>Join [RO_an_SUM] to P table. [OBJECTID] is the common attribute field</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field RO_an</td>
+<td class="info" align="left">
+<p>Yearly RO</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RO_an</td>
+<td class="info" align="left">
+<p>[RO_an] = [SUM_RO]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Add Field RP_an</td>
+<td class="info" align="left">
+<p>Yearly RP</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field RP_an</td>
+<td class="info" align="left">
+<p>[RP_an] = [P_an] - [EA_an] - [RO_an]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make XY Event Layer RP_an</td>
+<td class="info" align="left">
+<p>Makes a point layer based on x and y coordinates from a source table 
+used to apply boundary conditions to yearly RO and RP values.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make Feature Layer RP_an</td>
+<td class="info" align="left">
+<p>The Make Feature Layer tool is used to create a feature layer from an
+ input feature class or layer file. The layer that is created by the 
+tool is temporary and will not persist after the session ends unless the
+ document is saved. This layer is used to apply the boundary conditions.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_3.1</td>
+<td class="info" align="left">
+<p>BC_3.1: ([EA_an] + [SUM_RO]) &gt; [P_an]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field BC_3.1</td>
+<td class="info" align="left">
+<p>BC_3.1: [RO_an] = [P_an] - [EA_an]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_3.2</td>
+<td class="info" align="left">
+<p>BC_3.2: ([EA_an] + [SUM_RO]) &lt; [P_an]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field BC_3.2</td>
+<td class="info" align="left">
+<p>BC_3.2: [RO_an] = [SUM_RO]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_4.1</td>
+<td class="info" align="left">
+<p>BC_4.1: [RP_an] &lt;= 0</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field BC_4.1</td>
+<td class="info" align="left">
+<p>BC_4.1: [RP_an] = 0</p>
+</td>
+</tr>
+<tr>
+<td class="info">Select Layer By Attribute BC_4.2</td>
+<td class="info" align="left">
+<p>BC_4.2: [RP_an] &gt; 0</p>
+</td>
+</tr>
+<tr>
+<td class="info">Calculate Field BC_4.2</td>
+<td class="info" align="left">
+<p>BC_4.2: [RP_an] = [RP_an]</p>
+</td>
+</tr>
+<tr>
+<td class="info">Table to Table RO_RP</td>
+<td class="info" align="left">
+<p>Table with values of EP, EA, RO and RP</p>
+</td>
+</tr>
+<tr>
+<td class="info">Make XY Event Layer RO_RP</td>
+<td class="info" align="left">
+<p>Makes a point layer based on x and y coordinates from a source table.</p>
+</td>
+</tr>
+<tr>
+<td class="info">Feature Class to Feature Class RO_RP</td>
+<td class="info" align="left">
+<p>The layer created with "Make XY Event Layer" is temporary. With this 
+tool we create a .shp file containing the climatic stations as a point 
+lFeature Class</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+</body></html>
